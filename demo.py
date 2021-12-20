@@ -87,16 +87,15 @@ if __name__=="__main__":
         if args.mode==0:
             sentence_str = input("sentence:")
         elif args.mode==1:
-            sentence_str = input("raw sentence:")
+            sentence_str = input("sentence:")
             left_mask_num = int(input("left mask number:"))
             right_mask_num = int(input("right mask number:"))
-            if args.model_name_or_path.lower().startswith('bert--'):
+            if args.model_name_or_path.lower().startswith('bert-'):
                 sentence_str = '[MASK] '*left_mask_num + sentence_str + ' [MASK]'*right_mask_num
             elif args.model_name_or_path.lower().startswith('roberta-'):
                  sentence_str = '<mask> '*left_mask_num + sentence_str + ' <mask>'*right_mask_num
             else:
-                raise Exception()
+                raise Exception(args.model_name_or_path.lower())
         else:
             raise Exception()
         main(sentence_str,args,model,tokenizer)
-        print('\n')

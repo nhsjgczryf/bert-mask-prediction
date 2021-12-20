@@ -13,16 +13,7 @@ transformers.logging.set_verbosity_error()
 
 def search(probs,top_k=1):
     '''
-    注意这里我们的search的时候，有一个很好的性质吧，即，比如长为n,且top_k(i,j)代表第i到第j个结点的所有的序列中的概率得分中的第k个概率得分，那么: 
-    其实我直觉告诉我，这个性质是这样的，即，top_k对应的序列，其中的每个结点，必定是该位置所有结点概率的前k个中的一个。这个性质有一些类似beam_search,所以我们的搜索也是类似BeamSearch。
-    其实很简单的证明，即，采用反证法，即，如果存在一个结点，它不在当前位置的top_k，那么任意一个包含它的序列，它的概率都不会在前面k个。
-    很简单:
-    对于这样的序列，它的概率得分可以为:
-        prob(1,i-1)*prob(i,i)*prob(i+1,n)
-    如果有prob(i,i)<top_k(i,i)
-    那么有：
-        prob(1,i-1)*prob(i,i)*prob(i+1,n)<prob(1,i-1)*top_k(i,i)*prob(i+1,n)<top_k(1,n)
-    这就以为着这个序列不可能是我们需要的序列
+    simple beam search.
     args:
         probs: (seq_len,V)
     '''
@@ -32,9 +23,8 @@ def search(probs,top_k=1):
         val,idx  = torch.topk(prob,top_k,dim=-1,largest=True,sorted=True)
         top_k_val.append(val)
         top_k_idx.append(idx.tolist())
-    #这里我们采用增量搜索的方式，即，我们1到12到123到1234，然后在增量搜索的过程中，我们会drop掉前k个序列之后的序列
-    pre_ps = top_k_val[0] #之前的序列的得分
-    pre_ids = [[tk] for tk in top_k_idx[0]] #之前的序列（每个元素都是一个列表）
+    pre_ps = top_k_val[0] #previous top k sequence score
+    pre_ids = [[tk] for tk in top_k_idx[0]] #previous top k sequence
     for i in range(1,len(probs)):
         cur_ps = []
         cur_ids = []
